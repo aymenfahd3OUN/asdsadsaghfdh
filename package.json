@@ -2,11 +2,14 @@
   "name": "three-oun",
   "version": "0.1.0",
   "private": true,
+  "description": "3OUN — A futuristic command center for deep-tech ideas, simulations, cybersecurity, space systems, and quantum computing.",
+  "author": "3OUN Technologies",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "framer-motion": "^12.38.0",

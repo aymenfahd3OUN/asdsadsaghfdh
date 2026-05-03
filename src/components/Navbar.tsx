@@ -1,49 +1,66 @@
 "use client";
 
 import Link from "next/link";
-import { Search, ArrowRight } from "lucide-react";
+import { ArrowRight, Menu, Search } from "lucide-react";
 
 export default function Navbar() {
   return (
-    <nav className="absolute top-0 left-0 right-0 z-50 w-full text-white glass-nav border-b border-white/10">
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-12 flex items-center justify-between h-20">
-        
-        {/* Left Side: Logo & Primary Links */}
-        <div className="flex items-center gap-12">
-          <Link href="/" className="flex items-center gap-3">
-            {/* Logo placeholder mimicking the "Q" logo but for 3OUN */}
-            <div className="w-10 h-10 bg-accent-red flex items-center justify-center rounded text-white font-bold text-2xl font-display">
-              3
-            </div>
-            <div className="flex flex-col">
-              <span className="font-display font-bold text-lg leading-tight tracking-wide">3OUN</span>
-              <span className="text-[10px] tracking-widest text-white/70 uppercase">Technologies</span>
-            </div>
-          </Link>
-
-          <div className="hidden lg:flex items-center gap-8 text-sm font-medium">
-            <Link href="#why-us" className="hover:text-accent-red transition-colors">Why Us</Link>
-            <Link href="#products" className="hover:text-accent-red transition-colors">Products</Link>
-            <Link href="#services" className="hover:text-accent-red transition-colors">Services</Link>
+    <nav className="fixed left-0 right-0 top-0 z-50 w-full text-white glass-nav">
+      <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between px-6 lg:px-12">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-3">
+          <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600 font-display text-2xl font-black text-white purple-glow">
+            3
+            <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-white shadow-[0_0_18px_rgba(255,255,255,0.9)]" />
           </div>
+
+          <div className="flex flex-col">
+            <span className="font-display text-lg font-black leading-tight tracking-wide">
+              3OUN
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.32em] text-violet-200">
+              System Core
+            </span>
+          </div>
+        </Link>
+
+        {/* Center Links */}
+        <div className="hidden items-center gap-8 rounded-full border border-white/10 bg-white/[0.04] px-7 py-3 text-sm font-semibold text-white/75 backdrop-blur-xl lg:flex">
+          <Link href="#" className="transition hover:text-white">
+            Mission
+          </Link>
+          <Link href="#worlds" className="transition hover:text-white">
+            Worlds
+          </Link>
+          <Link href="#simulations" className="transition hover:text-white">
+            Simulations
+          </Link>
+          <Link href="#ideas" className="transition hover:text-white">
+            Ideas
+          </Link>
+          <Link href="#research" className="transition hover:text-white">
+            Research
+          </Link>
+          <Link href="#genesis" className="transition hover:text-white">
+            Genesis
+          </Link>
         </div>
 
-        {/* Right Side: Secondary Links & CTA */}
-        <div className="hidden xl:flex items-center gap-6 text-[11px] font-semibold tracking-wider uppercase">
-          <Link href="#" className="hover:text-accent-red transition-colors">Engineering Support</Link>
-          <Link href="#" className="hover:text-accent-red transition-colors">Training</Link>
-          <Link href="#" className="hover:text-accent-red transition-colors">Startup Program</Link>
-          <Link href="#" className="hover:text-accent-red transition-colors">Industries</Link>
-          <Link href="#" className="hover:text-accent-red transition-colors">Resource Center</Link>
-          
-          <button className="hover:text-accent-red transition-colors">
-            <Search className="w-4 h-4" />
+        {/* Right */}
+        <div className="hidden items-center gap-4 xl:flex">
+          <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-white/75 transition hover:bg-white/10 hover:text-white">
+            <Search className="h-4 w-4" />
           </button>
-          
-          <button className="bg-accent-red hover:bg-accent-red-hover text-white px-5 py-2 rounded text-xs font-bold flex items-center gap-2 transition-colors ml-2">
-            ASK FOR TRIAL <ArrowRight className="w-3 h-3" />
+
+          <button className="flex items-center gap-2 rounded-full bg-violet-600 px-6 py-3 text-xs font-black uppercase tracking-wider text-white shadow-[0_0_30px_rgba(124,58,237,0.6)] transition hover:bg-violet-500">
+            Enter System <ArrowRight className="h-4 w-4" />
           </button>
         </div>
+
+        {/* Mobile */}
+        <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] lg:hidden">
+          <Menu className="h-5 w-5" />
+        </button>
       </div>
     </nav>
   );
