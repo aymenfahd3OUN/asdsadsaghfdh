@@ -40,7 +40,7 @@ const ideasData = [
   {
     title: "AI Cyber Defense",
     description: "Deploy an autonomous neural sentry. Monitor real-time network traffic, identify anomalous patterns, and execute zero-day mitigation protocols.",
-    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=800",
+    image: "/images/ai_cyber.png",
     slug: "ai-cyber-defense",
     domain: "Cyber",
     level: "Real",
@@ -68,7 +68,7 @@ const ideasData = [
   {
     title: "Digital Identity",
     description: "Construct an unbreakable cryptographic persona. Distribute identity fragments across a decentralized ledger to ensure absolute data sovereignty.",
-    image: "https://images.unsplash.com/photo-1633265486064-086b219458ce?auto=format&fit=crop&q=80&w=800",
+    image: "/images/digital_identity.png",
     slug: "digital-identity",
     domain: "Identity",
     level: "Real",
@@ -82,7 +82,7 @@ const ideasData = [
   {
     title: "BCI Security",
     description: "Fortify neural uplinks. Implement firewalls directly into the brain-computer interface bridge to block cognitive intrusion and data skimming.",
-    image: "https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&q=80&w=800",
+    image: "/images/bci_security.png",
     slug: "bci-security",
     domain: "BCI",
     level: "Future",
@@ -96,7 +96,7 @@ const ideasData = [
   {
     title: "Time Simulation",
     description: "Compute hyper-dimensional timelines. Map causality trees, analyze the butterfly effect of micro-decisions, and render alternate reality branches.",
-    image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&q=80&w=800",
+    image: "/images/time_simulation.png",
     slug: "time-simulation",
     domain: "Physics",
     level: "Beyond",
@@ -302,6 +302,16 @@ export default function Home() {
                     {/* Blinking cursor */}
                     {!isSimulating && <span className="inline-block w-2 h-4 ml-1 bg-violet-500 animate-pulse" />}
                   </div>
+                  <div className="mt-8 flex justify-end">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="rounded-xl bg-violet-600 px-8 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(124,58,237,0.4)] transition-all hover:bg-violet-500 hover:shadow-[0_0_40px_rgba(124,58,237,0.6)]"
+                      onClick={() => handleSimAction("SYS.LOG: Core Simulation Initiated.")}
+                    >
+                      Start Simulation
+                    </motion.button>
+                  </div>
                 </motion.div>
               </div>
             </motion.div>
@@ -412,8 +422,8 @@ export default function Home() {
                 transition={{ delay: index * 0.1, duration: 0.6 }}
                 key={idea.slug}
                 onClick={() => setActiveModal(idea)}
-                whileHover={{ y: -12, scale: 1.03, rotateX: 2, rotateY: -2 }}
-                className="group relative h-[420px] w-full cursor-pointer overflow-hidden rounded-3xl border border-white/10 bg-black transition-all duration-500 shadow-[0_0_20px_rgba(0,0,0,0.8)] hover:border-violet-500/50 hover:shadow-[0_30px_60px_rgba(124,58,237,0.25)]"
+                whileHover={{ y: -16, scale: 1.08, rotateX: 4, rotateY: -4 }}
+                className="group relative h-[420px] w-full cursor-pointer overflow-hidden rounded-3xl border border-white/10 bg-black transition-all duration-500 shadow-[0_0_30px_rgba(0,0,0,0.9)] hover:border-violet-500/80 hover:shadow-[0_30px_80px_rgba(124,58,237,0.4)]"
                 style={{ transformStyle: "preserve-3d" }}
               >
                 {/* Background Image with Zoom and Blur */}
