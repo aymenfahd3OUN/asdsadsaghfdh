@@ -16,7 +16,8 @@ import {
   User,
   CheckCircle2,
   Loader2,
-  ChevronRight
+  ChevronRight,
+  Globe
 } from "lucide-react";
 import { ideasData } from "@/data/ideas";
 
@@ -368,10 +369,11 @@ export default function Home() {
                 <div className="flex flex-col gap-6 relative">
                   <div className="absolute left-[23px] top-4 bottom-4 w-[2px] bg-gradient-to-b from-violet-500/50 via-white/10 to-transparent shadow-[0_0_15px_rgba(124,58,237,0.8)]" />
                   {[
-                    { icon: Shield, text: "Cybersecurity", sub: "Google Certificate in Progress" },
-                    { icon: BrainCircuit, text: "AI & Prompt Engineering", sub: "Architecting Intelligent Interactions" },
-                    { icon: Terminal, text: "Linux Fundamentals", sub: "Server Architecture & Systems" },
-                    { icon: Cpu, text: "Electronics", sub: "Real-world Hardware Repair & Logic" },
+                    { icon: Shield, text: "Cybersecurity", sub: "Google Cybersecurity Professional Certificate • Google (Completed April 2026)" },
+                    { icon: BrainCircuit, text: "AI & Prompt Engineering", sub: "Generative AI: Prompt Engineering Basics (IBM, Coursera – 2025)" },
+                    { icon: Terminal, text: "Linux Fundamentals", sub: "Basics of Linux Operating System (Coursera – 2025)" },
+                    { icon: Cpu, text: "Electronics", sub: "Introduction to Electronic Engineering (FutureLearn – 2025)" },
+                    { icon: Globe, text: "Climate & Sustainability", sub: "SDG 3 Training & Sustainability Conference (2025)" },
                   ].map((item, idx) => (
                     <motion.div 
                       key={idx}
@@ -392,7 +394,7 @@ export default function Home() {
                 <div className="mt-12 flex gap-4">
                   <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 shadow-inner flex-1 hover:border-violet-500/40 transition-colors group">
                     <h4 className="text-xs font-bold uppercase tracking-widest text-violet-400 mb-3 group-hover:text-violet-300">Skills</h4>
-                    <p className="text-sm text-white/70 leading-relaxed">Problem solving, Leadership, Digital literacy, Adaptability.</p>
+                    <p className="text-sm text-white/70 leading-relaxed">Problem solving, Analytical Thinking, Technical Curiosity, Adaptability.</p>
                   </div>
                   <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 shadow-inner flex-1 hover:border-violet-500/40 transition-colors group">
                     <h4 className="text-xs font-bold uppercase tracking-widest text-violet-400 mb-3 group-hover:text-violet-300">Contact</h4>
