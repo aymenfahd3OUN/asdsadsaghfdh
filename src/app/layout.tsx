@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
+    <html lang="en" className={`${inter.variable} ${outfit.variable} scroll-smooth`}>
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
         {children}
       </body>

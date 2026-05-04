@@ -1,17 +1,15 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
-import { useState, useEffect } from "react";
+import { useState, MouseEvent } from "react";
+import Link from "next/link";
 import {
   BrainCircuit,
   Cpu,
   Eye,
   Orbit,
   Shield,
-  Sparkles,
-  X,
-  Play,
   Terminal,
   Activity,
   Wand2,
@@ -20,142 +18,89 @@ import {
   Loader2,
   ChevronRight
 } from "lucide-react";
+import { ideasData } from "@/data/ideas";
 
-// Modal Data
-const ideasData = [
-  {
-    title: "Quantum Simulation",
-    description: "Initialize a controlled vacuum state. Manipulate subatomic particles to observe superposition, forcing wave-function collapse upon measurement.",
-    image: "/images/quantum.jpg",
-    slug: "quantum-simulation",
-    domain: "Quantum",
-    level: "Beyond",
-    concepts: ["Qubit Generation", "State Superposition", "Entanglement", "Wave Collapse"],
-    experience: [
-      { action: "Generate Qubit", result: "SYS.LOG: Qubit instantiated. Coherence stable." },
-      { action: "Apply Hadamard Gate", result: "SYS.LOG: Superposition achieved. Probability distribution equalized." },
-      { action: "Measure System", result: "SYS.LOG: Wave-function collapsed. Output vector resolved." }
-    ],
-  },
-  {
-    title: "AI Cyber Defense",
-    description: "Deploy an autonomous neural sentry. Monitor real-time network traffic, identify anomalous patterns, and execute zero-day mitigation protocols.",
-    image: "/images/ai_cyber.png",
-    slug: "ai-cyber-defense",
-    domain: "Cyber",
-    level: "Real",
-    concepts: ["Heuristic Analysis", "Packet Sniffing", "Auto-Mitigation", "Threat Tracing"],
-    experience: [
-      { action: "Inject Malware", result: "WARN: Unauthorized payload detected in Node 0x4A." },
-      { action: "Isolate Node", result: "SYS.LOG: Node 0x4A quarantined. Network integrity preserved." },
-      { action: "Purge Threat", result: "SYS.LOG: Threat neutralized. Security index restored to 99.9%." }
-    ],
-  },
-  {
-    title: "Space Systems",
-    description: "Architect orbital mechanics. Launch microsatellites into Low Earth Orbit, establish deep-space telemetry, and synchronize communication arrays.",
-    image: "/images/space.jpg",
-    slug: "space-systems",
-    domain: "Space",
-    level: "Future",
-    concepts: ["Orbital Injection", "Telemetry Sync", "Signal Propagation", "Gravitational Assist"],
-    experience: [
-      { action: "Launch Sequence", result: "SYS.LOG: Thrusters ignited. Exiting atmosphere." },
-      { action: "Deploy Solar Arrays", result: "SYS.LOG: Arrays deployed. Power generation nominal." },
-      { action: "Ping Deep Space", result: "SYS.LOG: Signal transmitted. Awaiting echo delay (2.4s)." }
-    ],
-  },
-  {
-    title: "Digital Identity",
-    description: "Construct an unbreakable cryptographic persona. Distribute identity fragments across a decentralized ledger to ensure absolute data sovereignty.",
-    image: "/images/digital_identity.png",
-    slug: "digital-identity",
-    domain: "Identity",
-    level: "Real",
-    concepts: ["Zero-Knowledge Proofs", "Biometric Hashing", "Decentralized Ledger", "Access Tokens"],
-    experience: [
-      { action: "Hash Biometrics", result: "SYS.LOG: Biometric data encrypted via SHA-256." },
-      { action: "Generate ZK-Proof", result: "SYS.LOG: Proof generated. Identity verified without data exposure." },
-      { action: "Revoke Access", result: "SYS.LOG: Token revoked. Session terminated securely." }
-    ],
-  },
-  {
-    title: "BCI Security",
-    description: "Fortify neural uplinks. Implement firewalls directly into the brain-computer interface bridge to block cognitive intrusion and data skimming.",
-    image: "/images/bci_security.png",
-    slug: "bci-security",
-    domain: "BCI",
-    level: "Future",
-    concepts: ["Neural Encryption", "Synaptic Firewalls", "Cognitive Shielding", "Signal Integrity"],
-    experience: [
-      { action: "Establish Uplink", result: "SYS.LOG: Neural bridge connected. Sync rate 98%." },
-      { action: "Detect Intrusion", result: "WARN: Unrecognized synaptic pattern detected." },
-      { action: "Activate Shielding", result: "SYS.LOG: Cognitive firewall deployed. Uplink secured." }
-    ],
-  },
-  {
-    title: "Time Simulation",
-    description: "Compute hyper-dimensional timelines. Map causality trees, analyze the butterfly effect of micro-decisions, and render alternate reality branches.",
-    image: "/images/time_simulation.png",
-    slug: "time-simulation",
-    domain: "Physics",
-    level: "Beyond",
-    concepts: ["Causality Mapping", "Branch Prediction", "Temporal Paradoxes", "Entropy Reversal"],
-    experience: [
-      { action: "Map Current Vector", result: "SYS.LOG: Baseline reality anchored." },
-      { action: "Introduce Anomaly", result: "SYS.LOG: Anomaly injected. Timeline branching detected." },
-      { action: "Observe Outcome", result: "SYS.LOG: Alternate future rendered. Variance: 42%." }
-    ],
-  },
-];
-
+// Stats Data
 const stats = [
-  { label: "Three Worlds", desc: "Physical, Digital, Neural" },
-  { label: "One Mind", desc: "Unified Intelligence" },
-  { label: "Endless Growth", desc: "Infinite Iteration" },
-  { label: "System Ready", desc: "All Protocols Online" },
+  { label: "Physical / Digital / Neural", desc: "Three Worlds" },
+  { label: "Unified Intelligence Engine", desc: "One Mind" },
+  { label: "Self-evolving system", desc: "Endless Growth" },
+  { label: "All protocols active", desc: "System Ready" },
 ];
 
-export default function Home() {
-  const [activeModal, setActiveModal] = useState<typeof ideasData[0] | null>(null);
-  
-  // Interactive Simulation State
-  const [activeSimResult, setActiveSimResult] = useState<string>("");
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [displayedText, setDisplayedText] = useState("");
-  const [pulse, setPulse] = useState(false);
+// Interactive 3D Card Component
+function IdeaCard({ idea, index }: { idea: any; index: number }) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
 
-  // Typewriter effect for terminal result
-  useEffect(() => {
-    if (!activeSimResult) {
-      setDisplayedText("");
-      return;
-    }
-    
-    let i = 0;
-    setDisplayedText("");
-    const interval = setInterval(() => {
-      setDisplayedText(activeSimResult.slice(0, i + 1));
-      i++;
-      if (i >= activeSimResult.length) clearInterval(interval);
-    }, 25);
-    return () => clearInterval(interval);
-  }, [activeSimResult]);
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 20 });
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 20 });
 
-  const handleSimAction = (resultText: string) => {
-    setIsSimulating(true);
-    setActiveSimResult("");
-    setPulse(true);
-    setTimeout(() => setPulse(false), 300);
-    
-    // Fake execution delay
-    setTimeout(() => {
-      setIsSimulating(false);
-      setActiveSimResult(resultText);
-    }, 800);
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
   };
 
-  // AI Generator state
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <Link href={`/ideas/${idea.slug}`} className="block relative" style={{ perspective: 1200 }}>
+      <motion.div
+        style={{
+          rotateX,
+          rotateY,
+          transformStyle: "preserve-3d",
+        }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ delay: index * 0.1, duration: 0.6 }}
+        whileHover={{ scale: 1.05 }}
+        className="group relative h-[420px] w-full cursor-pointer overflow-hidden rounded-3xl border border-white/10 bg-black transition-shadow duration-500 shadow-[0_0_30px_rgba(0,0,0,0.9)] hover:border-violet-500/80 hover:shadow-[0_0_80px_rgba(124,58,237,0.6)]"
+      >
+        <motion.div
+          className="absolute inset-0 bg-cover bg-center opacity-40 blur-[4px] transition-all duration-700 group-hover:opacity-70 group-hover:blur-none group-hover:scale-110"
+          style={{ backgroundImage: `url(${idea.image})`, transform: "translateZ(-50px)" }}
+        />
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020004] via-[#050008]/80 to-transparent transition-opacity duration-500 group-hover:opacity-90" style={{ transform: "translateZ(10px)" }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-violet-900/40 opacity-0 transition-opacity duration-500 group-hover:opacity-100 mix-blend-overlay" style={{ transform: "translateZ(10px)" }} />
+        <div className="absolute inset-0 bg-violet-500/20 opacity-0 mix-blend-screen blur-2xl transition-all duration-500 group-hover:opacity-100" />
+        
+        <div className="absolute inset-0 flex flex-col justify-end p-8" style={{ transform: "translateZ(50px)" }}>
+          <div className="mb-5 flex items-center gap-3">
+            <span className="rounded-full bg-violet-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-violet-200 backdrop-blur-md border border-violet-400/30 shadow-[0_0_20px_rgba(124,58,237,0.4)]">
+              {idea.domain}
+            </span>
+          </div>
+          <h3 className="text-3xl font-black text-white drop-shadow-lg transition-all duration-300 group-hover:text-violet-300 group-hover:drop-shadow-[0_0_20px_rgba(124,58,237,0.8)]">
+            {idea.title}
+          </h3>
+          <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-white/60 drop-shadow-md transition-colors duration-300 group-hover:text-white/95">
+            {idea.description}
+          </p>
+        </div>
+      </motion.div>
+    </Link>
+  );
+}
+
+export default function Home() {
   const [aiInput, setAiInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedSim, setGeneratedSim] = useState<any>(null);
@@ -180,145 +125,6 @@ export default function Home() {
     <main className="min-h-screen overflow-hidden bg-[#050008] text-white selection:bg-violet-500/30">
       <Navbar />
 
-      {/* MODAL */}
-      <AnimatePresence>
-        {activeModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Modal Blur Background */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-xl"
-              onClick={() => {
-                setActiveModal(null);
-                setActiveSimResult("");
-                setDisplayedText("");
-              }}
-            />
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-[#0a0014]/95 shadow-[0_0_100px_rgba(124,58,237,0.3)] max-h-[90vh] overflow-y-auto z-10"
-            >
-              <button
-                onClick={() => {
-                  setActiveModal(null);
-                  setActiveSimResult("");
-                  setDisplayedText("");
-                }}
-                className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white/80 backdrop-blur-md transition-colors hover:bg-violet-600 hover:text-white"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="relative h-64 w-full overflow-hidden shrink-0">
-                <motion.div
-                  initial={{ scale: 1.2 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.8 }}
-                  className="absolute inset-0 bg-cover bg-center opacity-60 mix-blend-screen"
-                  style={{ backgroundImage: `url(${activeModal.image})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0014] via-[#0a0014]/70 to-transparent" />
-                <div className="absolute bottom-8 left-10">
-                  <span className="mb-3 inline-block rounded-full border border-violet-500/40 bg-violet-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-violet-300 backdrop-blur-md shadow-[0_0_15px_rgba(124,58,237,0.5)]">
-                    {activeModal.domain}
-                  </span>
-                  <h2 className="text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(124,58,237,0.3)]">{activeModal.title}</h2>
-                </div>
-              </div>
-
-              <div className="p-10">
-                <p className="mb-10 text-white/80 leading-relaxed text-lg border-l-2 border-violet-500/50 pl-4">
-                  {activeModal.description}
-                </p>
-
-                <div className="grid gap-10 md:grid-cols-2">
-                  {/* Concepts */}
-                  <div className="rounded-2xl bg-white/[0.02] border border-white/5 p-6 shadow-inner">
-                    <h3 className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-violet-400">
-                      <Terminal size={16} className="text-violet-500" /> System Concepts
-                    </h3>
-                    <ul className="space-y-4">
-                      {activeModal.concepts.map((concept, idx) => (
-                        <li key={idx} className="flex items-center gap-4 text-sm font-medium text-white/80">
-                          <span className="h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_12px_rgba(124,58,237,0.8)]" />
-                          {concept}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Experience Actions */}
-                  <div>
-                    <h3 className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-violet-400">
-                      <Activity size={16} className="text-violet-500" /> Execution Matrix
-                    </h3>
-                    <div className="space-y-3">
-                      {activeModal.experience.map((exp, idx) => (
-                        <motion.button
-                          whileHover={{ scale: 1.02, x: 5 }}
-                          whileTap={{ scale: 0.98 }}
-                          key={idx}
-                          onClick={() => handleSimAction(exp.result)}
-                          className="group w-full flex items-center justify-between rounded-xl border border-white/10 bg-black/40 px-5 py-4 text-left text-sm font-bold text-white/90 transition-all hover:border-violet-500/60 hover:bg-violet-500/10 hover:shadow-[0_0_20px_rgba(124,58,237,0.15)]"
-                        >
-                          <span className="flex items-center">
-                            <Play size={14} className="mr-3 text-violet-400 transition-transform group-hover:scale-125 group-hover:text-violet-300" />
-                            {exp.action}
-                          </span>
-                        </motion.button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Dynamic Result Output */}
-                <motion.div 
-                  animate={{ 
-                    boxShadow: pulse ? "0 0 40px rgba(124,58,237,0.4) inset" : "0 0 10px rgba(0,0,0,0.5) inset" 
-                  }}
-                  className="mt-10 rounded-2xl border border-white/10 bg-black/60 p-6 relative overflow-hidden"
-                >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
-                  <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-white/40 flex items-center gap-2">
-                    <Activity size={12} className={isSimulating ? "animate-spin text-violet-400" : ""} /> 
-                    Terminal Output
-                  </h3>
-                  <div className="font-mono text-sm min-h-[2.5rem] flex items-center">
-                    {isSimulating ? (
-                      <span className="text-violet-400 animate-pulse flex items-center gap-2">
-                        <Loader2 size={14} className="animate-spin" /> Processing parameters...
-                      </span>
-                    ) : (
-                      <span className="text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]">
-                        {displayedText ? `> ${displayedText}` : "> Awaiting execution command..."}
-                      </span>
-                    )}
-                    {/* Blinking cursor */}
-                    {!isSimulating && <span className="inline-block w-2 h-4 ml-1 bg-violet-500 animate-pulse" />}
-                  </div>
-                  <div className="mt-8 flex justify-end">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="rounded-xl bg-violet-600 px-8 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(124,58,237,0.4)] transition-all hover:bg-violet-500 hover:shadow-[0_0_40px_rgba(124,58,237,0.6)]"
-                      onClick={() => handleSimAction("SYS.LOG: Core Simulation Initiated.")}
-                    >
-                      Start Simulation
-                    </motion.button>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
       {/* HERO */}
       <section className="relative min-h-screen px-6 pt-36 flex flex-col items-center justify-center">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,#4c1d95_0%,#0f0518_50%,#050008_100%)] opacity-40" />
@@ -341,11 +147,11 @@ export default function Home() {
             transition={{ delay: 0.1 }}
             className="mx-auto max-w-5xl text-6xl font-black leading-tight tracking-tighter md:text-8xl drop-shadow-2xl"
           >
-            3OUN — Three Worlds.
+            3OUN — A visionary command center.
             <br />
             <span className="bg-gradient-to-r from-violet-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(124,58,237,0.5)]">
-              One Mind.
-            </span> Endless Growth.
+              Next-generation intelligence.
+            </span>
           </motion.h1>
 
           <motion.p
@@ -354,8 +160,7 @@ export default function Home() {
             transition={{ delay: 0.2 }}
             className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-white/60 font-medium"
           >
-            A futuristic command center for cybersecurity, space systems,
-            quantum computing, simulations, research, and experimental ideas.
+            An interactive neural matrix for deep-tech conceptualization. Initializing physical, digital, and neural convergence to architect the future of human capability.
           </motion.p>
 
           <motion.div
@@ -382,10 +187,8 @@ export default function Home() {
                 whileHover={{ y: -8, scale: 1.05 }}
                 className="group relative cursor-pointer overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-center backdrop-blur-xl transition-all duration-500 hover:border-violet-500/40 hover:bg-violet-900/20 hover:shadow-[0_0_40px_rgba(124,58,237,0.2)]"
               >
-                {/* Moving light effect on hover */}
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-violet-500/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-                {/* Core glow */}
-                <div className="absolute -inset-2 bg-gradient-to-b from-violet-600/0 via-violet-600/10 to-violet-600/0 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100" />
+                <div className="absolute -inset-2 bg-gradient-to-b from-violet-600/0 via-violet-600/10 to-violet-600/0 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100 animate-pulse" />
                 
                 <p className="relative z-10 text-xl font-black tracking-wide text-white transition-colors duration-300 group-hover:text-violet-300">
                   {item.label}
@@ -409,51 +212,13 @@ export default function Home() {
               <span className="text-violet-500 drop-shadow-[0_0_30px_rgba(124,58,237,0.6)]">Building Today.</span>
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-white/60">
-              Interactive nodes containing blueprints for future technologies. Select a domain to initialize the simulation matrix.
+              Interactive matrices containing blueprints for future technologies. Access to initiate the reality-shaping protocols.
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3" style={{ perspective: "1000px" }}>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {ideasData.map((idea, index) => (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-                key={idea.slug}
-                onClick={() => setActiveModal(idea)}
-                whileHover={{ y: -16, scale: 1.08, rotateX: 4, rotateY: -4 }}
-                className="group relative h-[420px] w-full cursor-pointer overflow-hidden rounded-3xl border border-white/10 bg-black transition-all duration-500 shadow-[0_0_30px_rgba(0,0,0,0.9)] hover:border-violet-500/80 hover:shadow-[0_30px_80px_rgba(124,58,237,0.4)]"
-                style={{ transformStyle: "preserve-3d" }}
-              >
-                {/* Background Image with Zoom and Blur */}
-                <motion.div
-                  className="absolute inset-0 bg-cover bg-center opacity-40 blur-[4px] transition-all duration-700 group-hover:opacity-70 group-hover:blur-none group-hover:scale-110"
-                  style={{ backgroundImage: `url(${idea.image})` }}
-                />
-                
-                {/* Deep Lighting Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#020004] via-[#050008]/80 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-violet-900/40 opacity-0 transition-opacity duration-500 group-hover:opacity-100 mix-blend-overlay" />
-                
-                {/* Core Glow Effect */}
-                <div className="absolute inset-0 bg-violet-500/20 opacity-0 mix-blend-screen blur-2xl transition-all duration-500 group-hover:opacity-100" />
-                
-                {/* Content on Top */}
-                <div className="absolute inset-0 flex flex-col justify-end p-8 translate-z-10">
-                  <div className="mb-5 flex items-center gap-3">
-                    <span className="rounded-full bg-violet-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-violet-200 backdrop-blur-md border border-violet-400/30 shadow-[0_0_20px_rgba(124,58,237,0.4)]">
-                      {idea.domain}
-                    </span>
-                  </div>
-                  <h3 className="text-3xl font-black text-white drop-shadow-lg transition-all duration-300 group-hover:text-violet-300 group-hover:drop-shadow-[0_0_20px_rgba(124,58,237,0.8)]">
-                    {idea.title}
-                  </h3>
-                  <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-white/60 drop-shadow-md transition-colors duration-300 group-hover:text-white/95">
-                    {idea.description}
-                  </p>
-                </div>
-              </motion.div>
+              <IdeaCard key={idea.slug} idea={idea} index={index} />
             ))}
           </div>
         </div>
@@ -476,7 +241,7 @@ export default function Home() {
               Neural Engine <span className="text-violet-500 drop-shadow-[0_0_30px_rgba(124,58,237,0.6)]">Generator</span>
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-white/60">
-              Input any concept. The intelligence core will architect a custom simulation environment instantly.
+              Input any futuristic concept. The intelligence core will architect a custom simulation environment instantly.
             </p>
           </div>
 
@@ -497,7 +262,7 @@ export default function Home() {
                     type="text"
                     value={aiInput}
                     onChange={(e) => setAiInput(e.target.value)}
-                    placeholder="Initialize parameter (e.g., Dyson Sphere, Nano-Robotics)..."
+                    placeholder="Enter any futuristic idea (e.g., Dyson Sphere, Nano-Robotics)..."
                     className="w-full h-full rounded-xl bg-transparent px-6 py-5 pl-14 text-lg text-white placeholder-white/30 outline-none"
                     onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
                   />
@@ -511,12 +276,12 @@ export default function Home() {
                 {isGenerating ? (
                   <>
                     <Loader2 size={22} className="animate-spin" />
-                    Processing...
+                    Synthesizing...
                   </>
                 ) : (
                   <>
                     <Wand2 size={22} />
-                    Synthesize
+                    Generate
                   </>
                 )}
               </button>
@@ -590,30 +355,30 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
               >
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.2em] text-violet-300 backdrop-blur-md shadow-[0_0_20px_rgba(124,58,237,0.2)]">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.2em] text-violet-300 backdrop-blur-md shadow-[0_0_20px_rgba(124,58,237,0.2)] hover:scale-105 transition-transform cursor-default">
                   <User size={16} /> Architect & Founder
                 </div>
-                <h3 className="text-5xl font-black md:text-7xl text-white tracking-tight drop-shadow-xl mb-8">
+                <h3 className="text-5xl font-black md:text-7xl text-white tracking-tight drop-shadow-xl mb-8 transition-colors hover:text-violet-300">
                   Aymen Fahd<br/>Al-Hetar
                 </h3>
                 <p className="text-xl leading-relaxed text-white/60 max-w-lg mb-12">
-                  A tech-driven visionary decoding the future. Building the next generation of digital infrastructure through relentless self-learning and an uncompromising futuristic mindset.
+                  Visionary tech builder focused on architecting future systems. Shaping the next generation of digital infrastructure through relentless self-learning and an uncompromising futuristic mindset.
                 </p>
                 
                 <div className="flex flex-col gap-6 relative">
-                  <div className="absolute left-[23px] top-4 bottom-4 w-[2px] bg-gradient-to-b from-violet-500/50 via-white/10 to-transparent" />
+                  <div className="absolute left-[23px] top-4 bottom-4 w-[2px] bg-gradient-to-b from-violet-500/50 via-white/10 to-transparent shadow-[0_0_15px_rgba(124,58,237,0.8)]" />
                   {[
-                    { icon: Shield, text: "Cybersecurity Analyst", sub: "Google Certificate in Progress" },
-                    { icon: BrainCircuit, text: "AI & Prompt Engineering", sub: "Specialist & Developer" },
-                    { icon: Terminal, text: "Linux Systems", sub: "Server Architecture Basics" },
-                    { icon: Cpu, text: "Electronics", sub: "Real-world Hardware Repair" },
+                    { icon: Shield, text: "Cybersecurity", sub: "Google Certificate in Progress" },
+                    { icon: BrainCircuit, text: "AI & Prompt Engineering", sub: "Architecting Intelligent Interactions" },
+                    { icon: Terminal, text: "Linux Fundamentals", sub: "Server Architecture & Systems" },
+                    { icon: Cpu, text: "Electronics", sub: "Real-world Hardware Repair & Logic" },
                   ].map((item, idx) => (
                     <motion.div 
                       key={idx}
                       whileHover={{ x: 10 }}
                       className="flex items-center gap-6 text-white/80 group cursor-default relative z-10"
                     >
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-black border-[2px] border-violet-500/40 shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-all group-hover:border-violet-400 group-hover:shadow-[0_0_25px_rgba(124,58,237,0.6)] group-hover:scale-110">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-black border-[2px] border-violet-500/40 shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-all group-hover:border-violet-400 group-hover:shadow-[0_0_25px_rgba(124,58,237,0.8)] group-hover:scale-110">
                         <item.icon size={20} className="text-violet-400 group-hover:text-white transition-colors" />
                       </div>
                       <div>
@@ -623,6 +388,18 @@ export default function Home() {
                     </motion.div>
                   ))}
                 </div>
+
+                <div className="mt-12 flex gap-4">
+                  <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 shadow-inner flex-1 hover:border-violet-500/40 transition-colors group">
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-violet-400 mb-3 group-hover:text-violet-300">Skills</h4>
+                    <p className="text-sm text-white/70 leading-relaxed">Problem solving, Leadership, Digital literacy, Adaptability.</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 shadow-inner flex-1 hover:border-violet-500/40 transition-colors group">
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-violet-400 mb-3 group-hover:text-violet-300">Contact</h4>
+                    <p className="text-sm text-white/70 break-all hover:text-white transition-colors cursor-pointer">aymenfahdalhetar@gmail.com</p>
+                  </div>
+                </div>
+
               </motion.div>
             </div>
             
@@ -630,14 +407,14 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, rotateY: 15 }}
                 whileInView={{ opacity: 1, scale: 1, rotateY: 0 }}
+                whileHover={{ rotateY: 10, rotateX: 5, scale: 1.02 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1, ease: "easeOut" }}
-                className="relative aspect-[4/5] w-full max-w-lg mx-auto rounded-[40px] border border-white/10 bg-gradient-to-b from-[#1a0033] to-[#050008] overflow-hidden group shadow-[0_0_80px_rgba(124,58,237,0.2)]"
+                className="relative aspect-[4/5] w-full max-w-lg mx-auto rounded-[40px] border border-white/10 bg-gradient-to-b from-[#1a0033] to-[#050008] overflow-hidden group shadow-[0_0_80px_rgba(124,58,237,0.2)] hover:shadow-[0_0_120px_rgba(124,58,237,0.4)]"
                 style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
               >
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.3)_0%,transparent_70%)] opacity-70 transition-opacity duration-700 group-hover:opacity-100" />
                 
-                {/* Cyberpunk grid overlay */}
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] opacity-30" />
                 
                 <motion.div 
@@ -651,7 +428,6 @@ export default function Home() {
                   </p>
                 </motion.div>
                 
-                {/* Abstract visualization */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] flex flex-col items-center pointer-events-none">
                   <div className="relative">
                     <div className="absolute inset-0 rounded-full bg-violet-600/30 blur-[100px] animate-pulse" />
